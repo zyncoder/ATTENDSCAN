@@ -1,21 +1,21 @@
-import tkinter as tk
-import cv2,os
-import csv
-import numpy as np
-from PIL import Image
-import pandas as pd
-import datetime
-import time
-from tkinter import messagebox
+import tkinter as tk #Tkinter is a graphical user interface (GUI) module for Python, you can make desktop apps with Python. You can make windows, buttons, show text and images amongst other things.
+import cv2,os #OpenCV-Python is a library of Python bindings designed to solve computer vision problems.
+import csv #A CSV file is a Comma Separated Values file. All CSV files are plain text files, can contain numbers and letters only, and structure the data contained within them in a tabular, or table, form.
+import numpy as np #NumPy is a library for the Python programming language, adding support for large, multi-dimensional arrays and matrices, along with a large collection of high-level mathematical functions to operate on these arrays. The ancestor of NumPy, Numeric, was originally created by Jim Hugunin with contributions from several other
+from PIL import Image #PIL is the Python Imaging Library which provides the python interpreter with image editing capabilities
+import pandas as pd #pandas is a software library written for the Python programming language for data manipulation and analysis
+import datetime #A date in Python is not a data type of its own, but we can import a module named datetime to work with dates as date objects.
+import time # The time() function returns the number of seconds passed since epoch.
+from tkinter import messagebox #A messagebox is a little popup showing a message. Sometimes it accompanied by an icon. Almost all the times, it interrupts what the user is doing.
 
-window = tk.Tk()
+window = tk.Tk() # To Create a Root Window
 
-window.title("Attendscan")
-
-
-window.configure(background='pink')
+window.title("Attendscan") # set window title
 
 
+window.configure(background='pink') #set window background color
+
+# set window width and height
 window.grid_rowconfigure(0, weight=1)
 window.grid_columnconfigure(0, weight=1)
 
@@ -90,6 +90,7 @@ def is_number(s):
  
     return False
  
+# Take Images is a function used for creating the sample of the images which is used for training the model. It takes 60 Images of every new user.  
 def TakeImages():        
     Id=(txt.get())
     name=(txt2.get())
@@ -146,8 +147,9 @@ def TakeImages():
             res = "Enter Numeric Id"
             message.configure(text= res)
             
-    
+# Training the images saved in training image folder    
 def TrainImages():
+ # Local Binary Pattern Histogram is an Face Recognizer algorithm inside OpenCV module used for training the image dataset
     recognizer = cv2.face_LBPHFaceRecognizer.create()
     faces,Id = getImagesAndLabels("TrainingImage")
     recognizer.train(faces, np.array(Id))
@@ -160,13 +162,12 @@ def TrainImages():
     
 
 def getImagesAndLabels(path):
-
+    # get the path of all the files in the folder
     imagePaths=[os.path.join(path,f) for f in os.listdir(path)] 
-    
     faces=[]
-
+    # creating empty ID list 
     Ids=[]
-
+    # now looping through all the image paths and loading the Ids and the images saved in the folder
     for imagePath in imagePaths:
         #loading the image and converting it to gray scale
         pilImage=Image.open(imagePath).convert('L')
@@ -174,16 +175,18 @@ def getImagesAndLabels(path):
         imageNp=np.array(pilImage,'uint8')
         #getting the Id from the image
         Id=int(os.path.split(imagePath)[-1].split(".")[1])
-        # extract the face from the training image sample
+        # extract the face from the training image sample 
         faces.append(imageNp)
         Ids.append(Id)        
     return faces,Ids
-
+# For testing phase 
 def TrackImages():
     recognizer = cv2.face.LBPHFaceRecognizer_create()#cv2.createLBPHFaceRecognizer()
+     # Reading the trained model 
     recognizer.read("TrainingImageLabel\Trainner.yml")
     harcascadePath = "haarcascade_frontalface_default.xml"
-    faceCascade = cv2.CascadeClassifier(harcascadePath);    
+    faceCascade = cv2.CascadeClassifier(harcascadePath);   
+     # getting the name from "StudentDetails.csv" 
     df=pd.read_csv("StudentDetails\StudentDetails.csv")
     cam = cv2.VideoCapture(0)
     font = cv2.FONT_HERSHEY_SIMPLEX        
@@ -243,5 +246,5 @@ trackImg = tk.Button(window, text="ATTENDANCE MARKING BUTTON", command=TrackImag
 trackImg.place(x=1075-x_cord, y=412-y_cord)
 quitWindow = tk.Button(window, text="QUIT", command=quit_window  ,fg="white"  ,bg="red"  ,width=10  ,height=2, activebackground = "pink" ,font=('Times New Roman', 15, ' bold '))
 quitWindow.place(x=700, y=735-y_cord)
- 
+  
 window.mainloop()
